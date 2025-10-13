@@ -7,17 +7,10 @@ plugins {
 
 android {
     namespace = "com.superstore.bas_pay_flutter_example"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 //    ndkVersion = flutter.ndkVersion
 
-//    lint {
-//        abortOnError = false       // لا يفشل الـ build بسبب أخطاء lint
-//        checkReleaseBuilds = false // لا يشغّل lint في نسخ release
-//        quiet = true               // يقلل عدد الرسائل المطبوعة
-//        warningsAsErrors = false   // لا يعامل التحذيرات كأخطاء
-//        checkDependencies = false  // لا يشغّل lint على المكتبات التابعة
-//    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -43,6 +36,11 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
+            // stop proguard
+//            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),"proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("debug")
         }
     }
