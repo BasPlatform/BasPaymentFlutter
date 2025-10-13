@@ -7,14 +7,23 @@ class InitBasSdkModel {
   String? language;
   final String platform;
   String? product;
+  String? environment;
 
-  InitBasSdkModel({
+  InitBasSdkModel.prod({
     required this.trxToken,
     this.userIdentifier,
     this.fullName,
     this.language,
     this.product,
-  }) : platform = "Flutter";
+  }) : platform = "Flutter" , environment = "prod";
+
+  InitBasSdkModel.dev({
+    required this.trxToken,
+    this.userIdentifier,
+    this.fullName,
+    this.language,
+    this.product,
+  }) : platform = "Flutter" , environment = "dev";
 
 
   Map<String, dynamic> toJson() {
@@ -25,6 +34,7 @@ class InitBasSdkModel {
     data[InitBasSdkModelFields.language] = language;
     data[InitBasSdkModelFields.platform] = platform;
     data[InitBasSdkModelFields.product] = product;
+    data[InitBasSdkModelFields.environment] = environment;
     return data;
   }
 
@@ -38,4 +48,5 @@ abstract class InitBasSdkModelFields {
   static const String language = 'language';
   static const String platform = 'platform';
   static const String product = 'product';
+  static const String environment = 'environment';
 }
