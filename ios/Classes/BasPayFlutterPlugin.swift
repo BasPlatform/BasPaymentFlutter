@@ -13,6 +13,8 @@ public class BasPayFlutterPlugin: NSObject, FlutterPlugin {
       var userIdentifier: String?
       var fullName: String?
       var language: String?
+      var product: String?
+      var environment : String?
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -22,6 +24,7 @@ public class BasPayFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    BankyLiteNotificationManager.shared.register()
     switch call.method {
     case "callBasPay":
 
@@ -54,11 +57,13 @@ public class BasPayFlutterPlugin: NSObject, FlutterPlugin {
        userIdentifier : convertArgs?.userIdentifier,
        fullName : convertArgs?.fullName,
        language : convertArgs?.language,
+       product : convertArgs?.product,
        onReturnDataToIOS : {
         [weak self] dataFromCompose in
         rootViewController.dismiss(animated: true, completion: nil)
         result(dataFromCompose)
-       }
+       },
+       environment : convertArgs?.environment
        )
 
         let navControllerForModal = UINavigationController(rootViewController: newNativeViewController)
