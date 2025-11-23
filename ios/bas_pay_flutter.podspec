@@ -23,7 +23,7 @@ A new Flutter project.
     set -e # Exit immediately if a command exits with a non-zero status.
 
     ZIP_URL="https://github.com/Osamah-Attiah/bas_pay_ios/releases/latest/download/bas_pay.xcframework.zip"
-#   ZIP_URL="https://github.com/Osamah-Attiah/bas_pay_ios/releases/download/bas_pay_ios/bas_pay.xcframework.zip"
+#   ZIP_URL="https://github.com/BasPlatform/BasPayment-IOS/releases/latest/download/bas_pay.xcframework.zip"
 
     DEST_DIR_NAME="Frameworks" # Name of the directory to unzip into
     FRAMEWORK_NAME="bas_pay.xcframework" # The name of the framework inside the zip
