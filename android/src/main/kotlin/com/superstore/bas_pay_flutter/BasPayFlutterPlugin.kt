@@ -1,30 +1,7 @@
 package com.superstore.bas_pay_flutter
 
-//import io.flutter.embedding.engine.plugins.FlutterPlugin
-//import io.flutter.plugin.common.MethodCall
-//import io.flutter.plugin.common.MethodChannel
-//import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-//import io.flutter.plugin.common.MethodChannel.Result
-//import android.app.Activity
-//import android.content.Intent
-//import io.flutter.embedding.engine.plugins.activity.ActivityAware
-//import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-//import androidx.activity.result.contract.ActivityResultContracts
-//import androidx.activity.result.ActivityResultLauncher
-//
-//import kotlinx.coroutines.CompletableDeferred
-//import kotlinx.coroutines.CoroutineScope
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.SupervisorJob
-//import kotlinx.coroutines.cancel // To cancel the scope
-//import kotlinx.coroutines.launch
-//import kotlinx.coroutines.withContext
-//import android.util.Log
-import androidx.activity.ComponentActivity
-//
-//import androidx.appcompat.app.AppCompatActivity
-//import android.content.Context
 
+import androidx.activity.ComponentActivity
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -41,92 +18,104 @@ import io.flutter.plugin.common.MethodChannel.Result
 
 import android.os.Bundle
 import io.flutter.plugin.common.PluginRegistry
-//import android.util.Log
-//import io.flutter.plugin.common.PluginRegistry.Registrar
-//import io.flutter.app.FlutterActivity
-//import io.flutter.plugins.GeneratedPluginRegistrant
+import com.superstore.bas_pay.BasPay
 
 /** BasPayFlutterPlugin */
 class BasPayFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener  {
-  /// The MethodChannel that will the communication between Flutter and native Android
+    /// The MethodChannel that will the communication between Flutter and native Android
 
-  private lateinit var channel : MethodChannel
+    private lateinit var channel: MethodChannel
+    private var activity: Activity? = null
+    private var pendingResult: Result? = null
 
-  private var activity: Activity? = null
-  private var activityBinding: ActivityPluginBinding? = null
-  private var pendingResult: Result? = null
-  private val REQUEST_CODE = 1234
-
-
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "bas_pay_flutter")
-    channel.setMethodCallHandler(this)
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    pendingResult = result
-
-    if (call.method == "callBasPay") {
-
-
-
-      val message = call.arguments
-      val intent: Intent = Intent(activity, BasActivity::class.java)
-      intent.putExtra("message", message.toString())
-      activity?.startActivityForResult(intent, REQUEST_CODE)
-//      intent?.startActivityForResult(intent, REQUEST_CODE)
-//      activity?.startActivity(intent)
-
-
-    } else {
-      result.notImplemented()
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(binding.binaryMessenger, "bas_pay_flutter")
+        channel.setMethodCallHandler(this)
     }
-  }
 
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        print("BasPayFlutterPlugin method call: ${call.arguments}")
+//        print("BasPayFlutterPlugin method call: ${call.method}")
+        if (call.method == "callBasPay") {
+            if (activity == null) {
+                result.error("NO_ACTIVITY", "Activity is null", null)
+                return
+            }
+            if (pendingResult != null) {
+                result.error("IN_PROGRESS", "Previous BasPay call still pending", null)
+                return
+            }
 
+            // نتوقع أن args خريطة (Map) قادمة من Flutter
+            val args = call.arguments as? Map<String, Any?>
+            if (args == null) {
+                result.error("BAD_ARGS", "Arguments must be a Map", null)
+                return
+            }
 
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
-  }
+            val trxToken = args["trxToken"] as? String
+            if (trxToken.isNullOrBlank()) {
+                result.error("MISSING_TOKEN", "trxToken is required", null)
+                return
+            }
 
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-//    this.activity = binding.activity
-    activity = binding.activity
-    activityBinding = binding
-    activityBinding?.addActivityResultListener(this)
-//    binding.addActivityResultListener(this)
-  }
+            val userIdentifier = args["userIdentifier"] as? String
+            val fullName = args["fullName"] as? String
+            val language = args["language"] as? String
+            val platform = args["platform"] as? String   // يمكن تركها null ليأخذ \"Native\"
+            val product = args["product"] as? String
+            val environment = args["environment"] as? String // \"prod\" أو \"dev\"
 
+            pendingResult = result
 
-  override fun onDetachedFromActivityForConfigChanges() {
-    activityBinding?.removeActivityResultListener(this)
-    activityBinding = null
-    activity = null
+            BasPay.start(
+                activity = activity!!,
+                trxToken = trxToken,
+                userIdentifier = userIdentifier,
+                fullName = fullName,
+                language = language,
+                platform = platform,
+                product = product,
+                environment = environment,
+                requestCode = BasPay.DEFAULT_REQUEST_CODE
+            )
+        } else {
+            result.notImplemented()
+        }
+    }
 
-  }
+    // ActivityAware
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
 
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-//    activity = binding.activity
-    activity = binding.activity
-    activityBinding = binding
-    activityBinding?.addActivityResultListener(this)
-  }
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
 
-  override fun onDetachedFromActivity() {
-    activityBinding?.removeActivityResultListener(this)
-    activityBinding = null
-    activity = null
-  }
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
 
+    override fun onDetachedFromActivity() {
+        activity = null
+    }
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+    // Activity Result
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode == BasPay.DEFAULT_REQUEST_CODE) {
+            val output = BasPay.getResult(data) ?: "null-result"
+            pendingResult?.success(output)
+            pendingResult = null
+            return true
+        }
+        return false
+    }
 
-    val resultFromIntent = data?.getStringExtra("result") ?: "errr"
-//    Log.d("result ::::", "${data?.getStringExtra("result")}")
-//    Log.d("resultFromIntent ::::", "${resultFromIntent}")
-    pendingResult?.success(resultFromIntent)
-
-    return true
-  }
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
 
 }

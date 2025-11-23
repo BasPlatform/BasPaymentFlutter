@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -16,8 +17,14 @@ class MethodChannelBasPayFlutter extends BasPayFlutterPlatform {
 
   @override
   Future<({bool resultStatus, ResultModel? resultModel})> callBasPay({required InitBasSdkModel model}) async {
-    final String modelJson = jsonEncode(model.toJson());
-    final result = await methodChannel.invokeMethod<String>('callBasPay', modelJson);
+    dynamic modelData;
+    if(Platform.isAndroid){
+      modelData = model.toJson();
+    }else{
+      modelData = jsonEncode(model.toJson());
+    }
+    // final String modelJson = jsonEncode(model.toJson());
+    final result = await methodChannel.invokeMethod<String>('callBasPay', modelData);
     if(result == null){
       return (resultStatus: false, resultModel: null);
     }
