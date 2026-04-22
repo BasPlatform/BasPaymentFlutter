@@ -15,13 +15,20 @@ buildscript {
     }
 }
 
+def pluginProjectDir = projectDir
 rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
         flatDir {
-            dirs project(':bas_pay_flutter').file('libs')
+            dirs "${pluginProjectDir}/libs"
         }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
     }
 }
 
@@ -33,10 +40,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.8"
     }
 
     namespace = "com.superstore.bas_pay_flutter"
@@ -65,11 +68,7 @@ android {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
         implementation(name: 'bas_pay-release', ext: 'aar')
-//        implementation(name: 'BankySDKManager-release', ext: 'aar')
-        implementation('com.ykb.banky.bankysdkmanager:BankySDKManager-release@aar'){
-            exclude group: "com.squareup.okhttp3", module: 'okhttp3'
-            exclude group: "androidx.localbroadcastmanager:localbroadcastmanager", module: 'androidx.localbroadcastmanager'
-        }
+        implementation(name: 'BankySDKManager-release', ext: 'aar')
         implementation 'androidx.appcompat:appcompat:1.4.1'
         implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
         implementation "com.squareup.okhttp3:okhttp:4.8.0"

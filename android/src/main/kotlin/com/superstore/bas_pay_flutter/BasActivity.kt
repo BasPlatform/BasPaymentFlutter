@@ -1,48 +1,52 @@
-
 package com.superstore.bas_pay_flutter
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.ComposeView
 import com.superstore.bas_pay.*
-import android.content.Intent
 import kotlinx.serialization.json.Json
-//import android.util.Log
 
 class BasActivity : ComponentActivity() {
-//    private val basMain = BasMain()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val message = intent?.extras?.getString("message")
+        if (message == null) {
+            finish()
+            return
+        }
 
-        val intent: Intent? = getIntent()
-        val json: Json = Json
-
-//        val inputMessage = intent?.getStringExtra(BasActivityContract.EXTRA_INPUT_MESSAGE) ?: "No input message"
-        val message = intent?.getExtras()?.getString("message")
-//        Log.d("message ::::", "${message}")
-//        val messageJson = json.decodeFromString<Map<String, String?>>(inputMessage as String)
-        val messageJson = json.decodeFromString<Map<String, String?>>(message as String)
-
+        val json = Json { ignoreUnknownKeys = true }
+        val messageJson = try {
+            json.decodeFromString<Map<String, String?>>(message)
+        } catch (e: Exception) {
+            finish()
+            return
+        }
 
         setContentView(
             ComposeView(this).apply {
                 setContent {
                     basSdk(
-                        messageJson["trxToken"] as String,
-                        messageJson["userIdentifier"],
-                        messageJson["fullName"],
-                        messageJson["language"],
-                        messageJson["platform"],
+                        trxToken = messageJson["trxToken"] ?: "",
+                        userIdentifier = messageJson["userIdentifier"],
+                        fullName = messageJson["fullName"],
+                        language = messageJson["language"],
+                        platform = messageJson["platform"],
                         product = messageJson["product"],
-                        onReturnDataToIOS = null,
+                        onReturnDataToIOS = { data ->
+                            val resultIntent = Intent()
+                            resultIntent.putExtra("result", data)
+                            setResult(Activity.RESULT_OK, resultIntent)
+                            finish()
+                        },
                         environment = messageJson["environment"]
                     )
                 }
             }
         )
     }
-
 }
