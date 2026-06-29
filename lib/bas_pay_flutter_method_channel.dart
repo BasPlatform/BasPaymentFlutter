@@ -38,3 +38,5 @@ class MethodChannelBasPayFlutter extends BasPayFlutterPlatform {
   }
 
 }
+
+BasPayFlutterPlatform createPlatformInstance() => MethodChannelBasPayFlutter();

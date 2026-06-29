@@ -1,0 +1,168 @@
+dartFix:
+  - fvm dart fix --apply
+
+cleanAndGet:
+  - fvm flutter clean
+  - fvm flutter pub get
+
+buildDevApk:
+  - $cleanAndGet
+  - fvm flutter build apk --flavor stage --dart-define=FLAVOR=stage --split-per-abi --obfuscate --split-debug-info --release
+
+
+buildProdApk:
+  - $cleanAndGet
+  - fvm flutter build apk --split-per-abi --obfuscate --split-debug-info --release
+
+
+buildSplitApk:
+  - $cleanAndGet
+  - fvm flutter build apk --split-per-abi --obfuscate --split-debug-info --release
+
+buildBundle:
+  - $cleanAndGet
+  - fvm flutter build appbundle --obfuscate --split-debug-info --release
+  - #.IOS......................................................
+
+buildIPA:
+  - $cleanAndGet
+  - fvm flutter build ipa --obfuscate --split-debug-info --release
+
+#//.WEB......................................................
+
+#buildWASM:
+#  - $cleanAndGet
+#  - fvm flutter build bundle
+#  - fvm flutter build web --wasm --release
+#
+#buildWeb2:
+#  - $cleanAndGet
+#  #  - fvm flutter build bundle
+#  - fvm flutter build web --release --no-tree-shake-icons --base-href /merch/
+#
+#buildWeb:
+#  - $cleanAndGet
+#  #  - fvm flutter build bundle
+#  - fvm flutter build web --release --no-tree-shake-icons
+#
+#
+#buildWebAndDeploy:
+#  - $buildWeb
+#  - firebase deploy
+
+buildProdWeb:
+  - $cleanAndGet
+  #  - fvm flutter build bundle
+  - fvm flutter build web --release --no-tree-shake-icons --dart-define=FLAVOR=prod
+
+buildDevWeb:
+  - $cleanAndGet
+  #  - fvm flutter build bundle
+  - fvm flutter build web --release --no-tree-shake-icons --dart-define=FLAVOR=dev
+
+buildProdWebAndDeploy:
+  - $buildProdWeb
+  - firebase deploy --only hosting:prod-target
+
+buildDevWebAndDeploy:
+  - $buildDevWeb
+  - firebase deploy --only hosting:dev-target
+
+buildDevWasmAndDeploy:
+  - $cleanAndGet
+  - fvm flutter build web --wasm --release --no-tree-shake-icons --dart-define=FLAVOR=dev
+  - firebase deploy --only hosting:dev-target
+
+
+buildMerchWeb:
+  - $cleanAndGet
+  #  - fvm flutter build bundle
+  - fvm flutter build web --release --no-tree-shake-icons --base-href /merch/ --dart-define=FLAVOR=prod
+
+# firebase deploy --only hosting:utility-payment
+# stage-merch
+# merch-app
+
+#//.......................................................
+
+#.... FLUTTER WEB ...............
+
+# flutter create --platforms web =>Add web support to an existing app
+# flutter run -d chrome --web-hostname 127.0.0.1 --web-port 5011
+# flutter run -d chrome --web-hostname 192.168.1.219 --web-port 5011
+
+# flutter run --web-hostname localhost --web-port 5011 -v
+# fvm flutter run -d chrome --debug --web-port 8080 --web-hostname localhost --web-tls-cert-path certifcate/cert.pem --web-tls-cert-key-path certifcate/key.pem
+
+#  flutter run -d chrome --web-browser-flag "--disable-web-security"
+
+# flutter run -d chrome --web-renderer html => to render flutter web as html not canvas
+
+#...............................
+
+# ACCESS LOCALHOST ON ANDROID EMULATOR WHEN YOU ARE DEVELOPING A FLUTTER WEB APP
+# https://hesam-kamalan.medium.com/how-to-access-localhost-on-android-emulator-when-you-are-developing-flutter-web-c41a383453df
+# .... like accessing alalamya app in Bas App.
+# run the following command to reverse the socket on the adb
+# adb reverse tcp:8080 tcp:8080
+# adb reverse tcp:5011 tcp:5011
+
+#...............................
+
+#..... FLUTTER WEB HOSTING IN FIREBASE ...............
+# to deploy flutter web HOSTING in firebase follow these steps:
+# 1- run firebase init
+# choose. Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys
+# What do you want to use as your public directory? => build/web
+# Configure as a single-page app (rewrite all urls to /index.html)? => Yes
+# Set up automatic builds and deploys with GitHub? => No
+
+# firebase deploy
+
+#.................................................................................
+
+
+#...... FIREBASE CLI ..............................................................
+# flutterfire configure
+# firebase login --reauth
+
+#.................................................................................
+
+
+#  dart run change_app_package_name:main com.superstore.merchant
+#  dart run change_app_package_name:main com.new.package.name --android
+#  dart run change_app_package_name:main com.new.package.name --ios
+#.................................................................................
+#  flutter pub run flutter_launcher_icons:main
+#  flutter pub run flutter_native_splash:create
+#  .fvm/flutter_sdk/bin/flutter
+
+#  cd android
+#  .\gradlew signingReport
+#  win => taskkill /F /IM dart.exe
+#         taskkill /F /IM java.exe
+
+#  mac => killall -9 dart
+#  cd ios
+#  pod deintegrate   ===> to remove all pod files
+#  pod install
+#  pod install --repo-update
+#  cd android
+#  .\gradlew signingReport
+#  win => taskkill /F /IM dart.exe
+#  mac => killall -9 dart
+#  cd ios
+
+#  $ apksigner sign --ks test-release.jks --v1-signing-enabled=true --v2-signing-enabled=false --v3-signing-enabled=false --v1-signer-name yourname/build/outputs/apk/release/app-release-unsigned.apk
+
+
+
+#/////////
+#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "https://basgate.com/dataId/123"'
+#  adb shell am start -W -a android.intent.action.VIEW -d "https://basgate.com/dataId/123" com.superstore.basapp
+#  adb shell 'am start "market://details?id=com.superstore.basapp&url=basapp://transfer/996b9789-d51b-461a-9dd9-ee92db994924#Intent"'
+#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://example.com/path/portion/?uid=123&token=abc"'
+#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://example.com/?arr%5b%5d=123&arr%5b%5d=abc&addr=1%20Nowhere%20Rd&addr=Rand%20City%F0%9F%98%82"'
+#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://@@malformed.invalid.url/path?"'
+
+
