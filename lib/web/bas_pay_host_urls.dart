@@ -5,6 +5,7 @@ import '../models/init_bas_sdk_model.dart';
 class BasPayHostUrls {
   static const String prodBaseUrl = 'https://bas-pay.web.app/';
   static const String devBaseUrl = 'https://bas-pay-dev.web.app/';
+  static const String sandboxBaseUrl = 'https://bas-pay-sandbox.web.app/';
   static const String embeddedPopup = 'popup';
   static const String osTypeWeb = 'Web';
   static const String parentOriginKey = 'parentOrigin';
@@ -12,6 +13,7 @@ class BasPayHostUrls {
   static const Set<String> allowedHostedOrigins = <String>{
     'https://bas-pay.web.app',
     'https://bas-pay-dev.web.app',
+    'https://bas-pay-sandbox.web.app',
   };
 
   static const Set<String> allowedLocalHosts = <String>{
@@ -21,10 +23,11 @@ class BasPayHostUrls {
   };
 
   static String resolveBaseUrl({required String? environment}) {
-    if (environment?.toLowerCase() == 'dev') {
-      return devBaseUrl;
-    }
-    return prodBaseUrl;
+    return switch (environment?.toLowerCase()) {
+      'dev' => devBaseUrl,
+      'sandbox' => sandboxBaseUrl,
+      _ => prodBaseUrl,
+    };
   }
 
   static bool isAllowedOrigin(String origin) {

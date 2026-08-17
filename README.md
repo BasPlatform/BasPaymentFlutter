@@ -23,6 +23,7 @@ final InitBasSdkModel model = InitBasSdkModel.dev(
   userIdentifier: '733733733', // optional
   language: 'ar', // optional, default ar
 );
+// or InitBasSdkModel.prod(...) / InitBasSdkModel.sandbox(...)
 
 final result = await basPay.callBasPay(model: model);
 
@@ -37,8 +38,9 @@ if (result.resultStatus && result.resultModel?.status == true) {
 
 On web, `callBasPay()` opens the hosted BAS Pay app in a popup window:
 
-- **Production:** `https://bas-pay.web.app`
+- **Production:** `https://bas-pay.web.app` (use `InitBasSdkModel.prod`)
 - **Development:** `https://bas-pay-dev.web.app` (use `InitBasSdkModel.dev`)
+- **Sandbox:** `https://bas-pay-sandbox.web.app` (use `InitBasSdkModel.sandbox`)
 
 The popup returns payment results to your app through `window.postMessage`. Your merchant app must call `callBasPay()` from a **user gesture** (for example a button `onPressed`). Browsers block popups opened without user interaction.
 
@@ -60,7 +62,7 @@ The popup returns payment results to your app through `window.postMessage`. Your
 
 When testing against a locally served `bas_sdk_web` instance, postMessage origins from `http://localhost` and `http://127.0.0.1` are accepted.
 
-To point the plugin at local hosting during development, change the base URL in `lib/web/bas_pay_host_urls.dart` or use the deployed dev environment.
+To point the plugin at local hosting during development, change the base URL in `lib/web/bas_pay_host_urls.dart` or use the deployed `dev` / `sandbox` environment.
 
 ## Android setup
 

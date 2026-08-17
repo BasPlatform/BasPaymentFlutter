@@ -25,6 +25,13 @@ class InitBasSdkModel {
     this.product,
   }) : platform = "Flutter" , environment = "dev";
 
+  InitBasSdkModel.sandbox({
+    required this.trxToken,
+    this.userIdentifier,
+    this.fullName,
+    this.language,
+    this.product,
+  }) : platform = "Flutter" , environment = "sandbox";
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

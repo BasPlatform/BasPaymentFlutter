@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _basPayFlutterPlugin = BasPayFlutter();
+  _BasPayExampleEnvironment _selectedEnvironment = _BasPayExampleEnvironment.sandbox;
 
   /// controller for text field
   final _trxTokenController = TextEditingController(
@@ -54,6 +55,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  InitBasSdkModel _createInitBasSdkModel({
+    required String trxToken,
+    String? userIdentifier,
+    String? fullName,
+    String language = 'ar',
+  }) {
+    return switch (_selectedEnvironment) {
+      _BasPayExampleEnvironment.prod => InitBasSdkModel.prod(
+        trxToken: trxToken,
+        userIdentifier: userIdentifier,
+        fullName: fullName,
+        language: language,
+      ),
+      _BasPayExampleEnvironment.dev => InitBasSdkModel.dev(
+        trxToken: trxToken,
+        userIdentifier: userIdentifier,
+        fullName: fullName,
+        language: language,
+      ),
+      _BasPayExampleEnvironment.sandbox => InitBasSdkModel.sandbox(
+        trxToken: trxToken,
+        userIdentifier: userIdentifier,
+        fullName: fullName,
+        language: language,
+      ),
+    };
+  }
+
   Future<void> callBasPay() async {
     final String trxToken = _trxTokenController.text;
     final String userIdentifier = _userIdentifierController.text;
@@ -65,10 +94,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     /// init bas sdk model
-    final InitBasSdkModel initBasSdkModel = InitBasSdkModel.dev(
+    final InitBasSdkModel initBasSdkModel = _createInitBasSdkModel(
       /// trxToken is required
       trxToken: trxToken,
-
       /// userIdentifier is optional, default value is null
       /// example: userIdentifier: "733733733" phone number
       // userIdentifier: userIdentifier.isEmpty ? null : userIdentifier,
@@ -143,6 +171,15 @@ class _HomePageState extends State<HomePage> {
               decoration: const InputDecoration(hintText: 'fullName'),
             ),
             const SizedBox(height: 16),
+            _EnvironmentDropdown(
+              selectedEnvironment: _selectedEnvironment,
+              onChanged: (_BasPayExampleEnvironment environment) {
+                setState(() {
+                  _selectedEnvironment = environment;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: callBasPay,
               child: const Text('Call Bas Pay'),
@@ -150,6 +187,45 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+enum _BasPayExampleEnvironment {
+  prod,
+  dev,
+  sandbox,
+}
+
+class _EnvironmentDropdown extends StatelessWidget {
+  const _EnvironmentDropdown({
+    required this.selectedEnvironment,
+    required this.onChanged,
+  });
+
+  final _BasPayExampleEnvironment selectedEnvironment;
+  final ValueChanged<_BasPayExampleEnvironment> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<_BasPayExampleEnvironment>(
+      value: selectedEnvironment,
+      decoration: const InputDecoration(hintText: 'environment'),
+      items: _BasPayExampleEnvironment.values
+          .map(
+            (_BasPayExampleEnvironment environment) =>
+                DropdownMenuItem<_BasPayExampleEnvironment>(
+              value: environment,
+              child: Text(environment.name),
+            ),
+          )
+          .toList(),
+      onChanged: (_BasPayExampleEnvironment? environment) {
+        if (environment == null) {
+          return;
+        }
+        onChanged(environment);
+      },
     );
   }
 }
