@@ -37,3 +37,5 @@ Icon?
 /Flutter/ephemeral/
 /Flutter/flutter_export_environment.sh
 Frameworks/
+.build/
+.swiftpm/
