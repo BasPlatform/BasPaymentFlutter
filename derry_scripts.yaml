@@ -157,12 +157,3 @@ buildMerchWeb:
 
 
 
-#/////////
-#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "https://basgate.com/dataId/123"'
-#  adb shell am start -W -a android.intent.action.VIEW -d "https://basgate.com/dataId/123" com.superstore.basapp
-#  adb shell 'am start "market://details?id=com.superstore.basapp&url=basapp://transfer/996b9789-d51b-461a-9dd9-ee92db994924#Intent"'
-#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://example.com/path/portion/?uid=123&token=abc"'
-#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://example.com/?arr%5b%5d=123&arr%5b%5d=abc&addr=1%20Nowhere%20Rd&addr=Rand%20City%F0%9F%98%82"'
-#  adb shell 'am start -W -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "unilinks://@@malformed.invalid.url/path?"'
-
-
